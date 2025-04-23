@@ -22,6 +22,9 @@ public class UserController {
         try {
             validateUser(user);
             user.setId(idCounter++);
+            if (user.getName() == null || user.getName().isBlank()) {
+                user.setName(user.getLogin());
+            }
             users.add(user);
             log.info("Пользователь успешно создан: {}", user.getLogin());
             return user;
