@@ -43,7 +43,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     public User updateUser(@RequestBody User updatedUser) {
         try {
             validateUser(updatedUser);

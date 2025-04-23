@@ -46,7 +46,7 @@ public class FilmController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     public Film updateFilm(@RequestBody Film updatedFilm) {
         try {
             validateFilm(updatedFilm);
