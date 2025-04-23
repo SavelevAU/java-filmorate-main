@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +41,9 @@ public class UserController {
         if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
+        if (user.getName() == null || user.getName().isEmpty()) {
+            throw new ValidationException("Имя не может быть пустым.");
+        }
     }
 
     @PutMapping
@@ -58,7 +61,8 @@ public class UserController {
                 }
             }
             log.warn("Пользователь с ID {} не найден", updatedUser.getId());
-            return null;
+            throw new NotFoundException("Пользователь с id = " + updatedUser.getId() + " не найден");
+            //return null;
         } catch (ValidationException e) {
             log.error("Ошибка валидации при обновлении пользователя: {}", e.getMessage());
             throw e;
