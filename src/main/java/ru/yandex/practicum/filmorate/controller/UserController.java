@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -48,22 +47,18 @@ public class UserController {
     public User updateUser(@PathVariable int id, @RequestBody User updatedUser) {
         try {
             validateUser(updatedUser);
-            Optional<User> userToUpdate = users.stream()
-                    .filter(user -> user.getId() == id)
-                    .findFirst();
-
-            if (userToUpdate.isPresent()) {
-                User user = userToUpdate.get();
-                user.setEmail(updatedUser.getEmail());
-                user.setLogin(updatedUser.getLogin());
-                user.setName(updatedUser.getName());
-                user.setBirthday(updatedUser.getBirthday());
-                log.info("Пользователь успешно обновлен: {}", user.getLogin());
-                return user;
-            } else {
-                log.warn("Пользователь с ID {} не найден", id);
-                throw new ValidationException("Пользователь с указанным ID не существует.");
+            for (User user : users) {
+                if (user.getId() == updatedUser.getId()) {
+                    user.setEmail(updatedUser.getEmail());
+                    user.setLogin(updatedUser.getLogin());
+                    user.setName(updatedUser.getName());
+                    user.setBirthday(updatedUser.getBirthday());
+                    log.info("Пользователь успешно обновлен: {}", user.getLogin());
+                    return user;
+                }
             }
+            log.warn("Пользователь с ID {} не найден", id);
+            return null;
         } catch (ValidationException e) {
             log.error("Ошибка валидации при обновлении пользователя: {}", e.getMessage());
             throw e;

@@ -51,7 +51,7 @@ public class FilmController {
         try {
             validateFilm(updatedFilm);
             for (Film film : films) {
-                if (film.getId() == id) {
+                if (film.getId() == updatedFilm.getId()) {
                     film.setName(updatedFilm.getName());
                     film.setDescription(updatedFilm.getDescription());
                     film.setReleaseDate(updatedFilm.getReleaseDate());
