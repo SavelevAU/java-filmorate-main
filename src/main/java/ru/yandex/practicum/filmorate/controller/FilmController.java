@@ -47,7 +47,7 @@ public class FilmController {
     }
 
     @PutMapping("/{id}")
-    public Film updateFilm(@PathVariable int id, @RequestBody Film updatedFilm) {
+    public Film updateFilm(@RequestBody Film updatedFilm) {
         try {
             validateFilm(updatedFilm);
             for (Film film : films) {
@@ -60,7 +60,7 @@ public class FilmController {
                     return film;
                 }
             }
-            log.warn("Фильм с ID {} не найден", id);
+            log.warn("Фильм с ID {} не найден", updatedFilm.getId());
             return null;
         } catch (ValidationException e) {
             log.error("Ошибка валидации при обновлении фильма: {}", e.getMessage());

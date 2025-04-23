@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable int id, @RequestBody User updatedUser) {
+    public User updateUser(@RequestBody User updatedUser) {
         try {
             validateUser(updatedUser);
             for (User user : users) {
@@ -57,7 +57,7 @@ public class UserController {
                     return user;
                 }
             }
-            log.warn("Пользователь с ID {} не найден", id);
+            log.warn("Пользователь с ID {} не найден", updatedUser.getId());
             return null;
         } catch (ValidationException e) {
             log.error("Ошибка валидации при обновлении пользователя: {}", e.getMessage());
