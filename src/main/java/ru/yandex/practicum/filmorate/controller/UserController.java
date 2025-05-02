@@ -44,9 +44,7 @@ public class UserController {
         if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-//        if (user.getName() == null || user.getName().isEmpty()) {
-//            throw new ValidationException("Имя не может быть пустым.");
-//        }
+
     }
 
     @PutMapping
