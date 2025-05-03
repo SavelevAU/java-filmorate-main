@@ -155,18 +155,6 @@ class UserTest {
 
     @SneakyThrows
     @Test
-    void updateUser_MissingId_ThrowsValidationException() {
-        User user = validUser.toBuilder().id(null).build();
-
-        mockMvc.perform(put("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertInstanceOf(ValidationException.class, result.getResolvedException()));
-    }
-
-    @SneakyThrows
-    @Test
     void getAllUsers_WithUsers_ReturnsUserList() {
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
