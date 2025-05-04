@@ -14,19 +14,19 @@ import java.util.Set;
 @Builder(toBuilder = true)
 public class User {
     @EqualsAndHashCode.Include
-    Integer id;
+    private Integer id;
     @Email
     @NotNull
     @NotBlank
-    String email;
+    private String email;
     @NotNull
     @NotBlank
     @Pattern(regexp = "\\S+", message = "Логин не должен содержать пробелов")
-    String login;
-    String name;
+    private String login;
+    private String name;
     @PastOrPresent
-    LocalDate birthday;
-    Set<Integer> friends;
+    private  LocalDate birthday;
+    private Set<Integer> friends;
 
     public Set<Integer> getFriends() {
         if (friends == null) {

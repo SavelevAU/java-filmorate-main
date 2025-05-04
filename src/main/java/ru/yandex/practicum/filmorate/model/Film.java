@@ -19,17 +19,17 @@ import java.util.Set;
 @Builder(toBuilder = true)
 public class Film {
     @EqualsAndHashCode.Include
-    Integer id;
+    private Integer id;
     @NotNull
     @NotBlank
-    String name;
+    private String name;
     @Size(max = 200, message = "Размер описания не должен превышать 200 символов")
-    String description;
+    private String description;
     @NotBeforeDate()
-    LocalDate releaseDate;
+    private LocalDate releaseDate;
     @Positive(message = "Длительность должна быть положительной")
-    Integer duration;
-    Set<Integer> likes;
+    private Integer duration;
+    private Set<Integer> likes;
 
     public Set<Integer> getLikes() {
         if (likes == null) {

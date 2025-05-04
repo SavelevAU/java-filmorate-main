@@ -13,7 +13,7 @@ import java.util.*;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final List<Film> films = new ArrayList<>();
+    private final Map<Integer, Film> films = new HashMap<>();
     private Integer idCounter = 1;
 
     @Override
@@ -21,7 +21,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         try {
             validateFilm(film);
             film.setId(idCounter++);
-            films.add(film);
+            films.put(film.getId(), film);
             log.info("Фильм успешно добавлен: {}", film.getName());
             return film;
         } catch (ValidationException e) {
@@ -34,7 +34,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film updateFilm(Film updatedFilm) {
         try {
             validateFilm(updatedFilm);
-            for (Film film : films) {
+            for (Film film : films.values()) {
                 if (film.getId() == updatedFilm.getId()) {
                     film.setName(updatedFilm.getName());
                     film.setDescription(updatedFilm.getDescription());
@@ -56,7 +56,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Film> getAllFilms() {
         log.info("Запрос на получение всех фильмов");
-        return films;
+        return films.values();
     }
 
     private void validateFilm(Film film) {
