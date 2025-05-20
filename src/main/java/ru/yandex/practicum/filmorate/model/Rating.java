@@ -12,5 +12,5 @@ public class Rating {
     Integer id;
     @NotNull
     @NotBlank
-    private String name;
+    String name;
 }

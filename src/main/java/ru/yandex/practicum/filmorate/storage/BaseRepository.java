@@ -45,7 +45,7 @@ public class BaseRepository<T> {
 
     protected long insert(String query, boolean expectGeneratedKey, Object... params) {
         if (expectGeneratedKey) {
-            GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+             GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbc.update(connection -> {
                 PreparedStatement ps = connection

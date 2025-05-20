@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -51,6 +52,9 @@ class FilmTests {
 				.releaseDate(LocalDate.of(1995, 12, 28)) // Корректная дата (после 28.12.1895)
 				.duration(120)
 				.build();
+		Rating mpa = new Rating();
+		mpa.setId(1);
+		validFilm.setMpa(mpa);
 		FilmStorage filmStorage = new InMemoryFilmStorage();
 		UserStorage userStorage = new InMemoryUserStorage();
 		UserService userService = new UserService(userStorage);
@@ -149,7 +153,7 @@ class FilmTests {
 				.andExpect(result -> {
 					// Проверяем, что было выброшено нужное исключение
 					assertInstanceOf(NotFoundException.class, result.getResolvedException());
-					assertEquals("Фильм с id = 999 не найден",
+					assertEquals("Фильм с id 999 не найден",
 							result.getResolvedException().getMessage());
 				});
 	}
@@ -192,13 +196,14 @@ class FilmTests {
 	@SneakyThrows
 	@Test
 	void createFilm_DurationExactly1Minute_ReturnsOk() {
-		Film film = Film.builder()
-				.name("One Minute Film")
-				.description("Shortest possible film")
-				.releaseDate(LocalDate.of(2000, 1, 1))
-				.duration(1) // Минимальная положительная длительность
-				.build();
-
+		Film film = new Film();
+		film.setName("One Minute Film");
+		film.setDescription("Shortest possible film");
+		film.setReleaseDate(LocalDate.of(2000, 1, 1));
+		film.setDuration(1);  // Минимальная положительная длительность
+		Rating mpa = new Rating();
+		mpa.setId(1);
+		film.setMpa(mpa);
 		mockMvc.perform(post("/films")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(film)))
@@ -226,13 +231,14 @@ class FilmTests {
 	@Test
 	void createFilm_DescriptionExactly200Chars_ReturnsOk() {
 		String exact200Chars = "a".repeat(200); // Ровно 200 символов
-
-		Film film = Film.builder()
-				.name("Boundary Length Description")
-				.description(exact200Chars)
-				.releaseDate(LocalDate.of(2000, 1, 1))
-				.duration(120)
-				.build();
+		Film film = new Film();
+		film.setName("Boundary Length Description");
+		film.setDescription(exact200Chars);  // Предполагается, что exact200Chars = строка длиной 200 символов
+		film.setReleaseDate(LocalDate.of(2000, 1, 1));
+		film.setDuration(120);
+		Rating mpa = new Rating();
+		mpa.setId(1);
+		film.setMpa(mpa);
 
 		mockMvc.perform(post("/films")
 						.contentType(MediaType.APPLICATION_JSON)
@@ -244,12 +250,14 @@ class FilmTests {
 	@SneakyThrows
 	@Test
 	void createFilm_ReleaseDateExactlyMinBoundary_ReturnsOk() {
-		Film film = Film.builder()
-				.name("Boundary Date Film")
-				.description("Normal description")
-				.releaseDate(LocalDate.of(1895, 12, 28)) // Граничная дата
-				.duration(120)
-				.build();
+
+		Film film = new Film();
+		film.setName("Boundary Date Film");
+		film.setDescription("Normal description");
+		film.setReleaseDate(LocalDate.of(1895, 12, 28)); // Граничная дата (первый день кино)
+		Rating mpa = new Rating();
+		mpa.setId(1);
+		film.setMpa(mpa);
 
 		mockMvc.perform(post("/films")
 						.contentType(MediaType.APPLICATION_JSON)

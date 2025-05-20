@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
+
     private static final String FIND_ALL_QUERY = """
     SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.name AS mpa_name
     FROM films f INNER JOIN ratings r on f.rating_id = r.id""";
@@ -48,22 +49,22 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         super(jdbc, mapper);
     }
 
-    @Override
-    public Film addFilm(Film film) {
+        @Override
+        public Film addFilm(Film film) {
 
-        Long id = insert(
-                INSERT_QUERY,
-                true,
-                film.getName(),
-                film.getDescription(),
-                java.sql.Date.valueOf(film.getReleaseDate()),
-                film.getDuration(),
-                film.getMpa().getName()
-        );
+            long id = insert(
+                    INSERT_QUERY,
+                    true,
+                    film.getName(),
+                    film.getDescription(),
+                    java.sql.Date.valueOf(film.getReleaseDate()),
+                    film.getDuration(),
+                    film.getMpa().getId()
+            );
 
-        film.setId(id);
-        return film;
-    }
+            film.setId(id);
+            return film;
+        }
 
     @Override
     public Film updateFilm(Film film) {
@@ -73,7 +74,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 film.getDescription(),
                 java.sql.Date.valueOf(film.getReleaseDate()),
                 film.getDuration(),
-                film.getMpa().getName(),
+                film.getMpa().getId(),
                 film.getId()
         );
         return film;

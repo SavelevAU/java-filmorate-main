@@ -67,10 +67,10 @@ class UserTest {
 
     @Test
     void findAll_ShouldReturnAllUsers_WhenUsersExist() {
-        controller.createUser(validUser);
+        UserDto newUser = controller.createUser(validUser);
         Collection<UserDto> users = controller.getAllUsers();
         assertEquals(1, users.size(), "Должен вернуться 1 пользователь");
-        assertTrue(users.contains(validUser), "Пользователь должен быть в списке");
+        assertTrue(users.contains(newUser), "Пользователь должен быть в списке");
     }
 
     @SneakyThrows
