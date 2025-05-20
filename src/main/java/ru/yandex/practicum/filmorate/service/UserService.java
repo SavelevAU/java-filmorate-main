@@ -87,6 +87,7 @@ public class UserService {
                 .map(UserMapper::mapToUserDto)
                 .toList();
     }
+    
     public Collection<UserDto> getCommonFriends(Long id, Long otherId) {
         log.debug("Вызван метод getCommonFriends id = {}, otherId = {}", id, otherId);
         User user = userStorage.findById(id).orElseThrow(() ->
