@@ -13,8 +13,8 @@ import java.util.*;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final Map<Integer, Film> films = new HashMap<>();
-    private Integer idCounter = 1;
+    private final Map<Long, Film> films = new HashMap<>();
+    private Long idCounter = 1l;
 
     @Override
     public Film addFilm(Film film) {
@@ -72,5 +72,37 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительным числом.");
         }
+    }
+
+    @Override
+    public Optional<Film> findFilmById(Long id) {
+        return Optional.ofNullable(films.get(id));
+    }
+
+    @Override
+    public void addLikeByUser(Long filmId, Long userId) {
+        Film film = findFilmById(filmId).orElseThrow(() ->
+                new NotFoundException("Фильм с id = " + filmId + " не найден"));
+        Set<Long> likes = film.getLikes();
+        likes.add(userId);
+        film.setLikes(likes);
+    }
+
+    @Override
+    public void deleteLikeByUser(Long filmId, Long userId) {
+        Film film = findFilmById(filmId).orElseThrow(() ->
+                new NotFoundException("Фильм с id = " + filmId + " не найден"));
+        Set<Long> likes = film.getLikes();
+        likes.remove(userId);
+        film.setLikes(likes);
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count) {
+        return getAllFilms()
+                .stream()
+                .sorted(Film.byLikesCountDesc())
+                .limit(count)
+                .toList();
     }
 }

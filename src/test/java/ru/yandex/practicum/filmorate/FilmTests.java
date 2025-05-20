@@ -10,6 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -39,11 +41,11 @@ class FilmTests {
 
 	private FilmController controller;
 
-	private Film validFilm;
+	private NewFilmRequest validFilm;
 
 	@BeforeEach
 	void beforeEach() {
-		validFilm = Film.builder()
+		validFilm = NewFilmRequest.builder()
 				.name("Valid Film")
 				.description("A valid film description")
 				.releaseDate(LocalDate.of(1995, 12, 28)) // Корректная дата (после 28.12.1895)
@@ -52,7 +54,7 @@ class FilmTests {
 		FilmStorage filmStorage = new InMemoryFilmStorage();
 		UserStorage userStorage = new InMemoryUserStorage();
 		UserService userService = new UserService(userStorage);
-		FilmService filmService = new FilmService(filmStorage, userService);
+		FilmService filmService = new FilmService(filmStorage, userStorage);
 		controller = new FilmController(filmService);
 	}
 
@@ -132,14 +134,14 @@ class FilmTests {
 
 	@Test
 	void getAllFilms_WhenNoFilmsAdded_ReturnsEmptyList() {
-		Collection<Film> films = controller.getAllFilms();
+		Collection<FilmDto> films = controller.getAllFilms();
 		assertTrue(films.isEmpty(), "При инициализации список фильмов не пустой");
 	}
 
 	@SneakyThrows
 	@Test
 	void updateFilmById_WhenFilmNotFound_ThrowsNotFoundException() {
-		validFilm.setId(999);
+		validFilm.setId(999L);
 		mockMvc.perform(put("/films")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(validFilm)))

@@ -10,6 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -34,14 +37,21 @@ class UserTest {
     private ObjectMapper objectMapper;
 
     private UserController controller;
-    private User validUser;
+    private NewUserRequest validUser;
+    private UpdateUserRequest validUserUpdate;
 
     @BeforeEach
     void beforeEach() {
         UserStorage userStorage = new InMemoryUserStorage();
         UserService userService = new UserService(userStorage);
         controller = new UserController(userService);
-        validUser = User.builder()
+        validUser = NewUserRequest.builder()
+                .email("test@mail.ru")
+                .login("validLogin")
+                .name("Valid Name")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
+        validUserUpdate = UpdateUserRequest.builder()
                 .email("test@mail.ru")
                 .login("validLogin")
                 .name("Valid Name")
@@ -51,14 +61,14 @@ class UserTest {
 
     @Test
     void findAll_ShouldReturnEmptyList_WhenNoUsersAdded() {
-        Collection<User> users = controller.getAllUsers();
+        Collection<UserDto> users = controller.getAllUsers();
         assertTrue(users.isEmpty(), "Список пользователей должен быть пустым");
     }
 
     @Test
     void findAll_ShouldReturnAllUsers_WhenUsersExist() {
         controller.createUser(validUser);
-        Collection<User> users = controller.getAllUsers();
+        Collection<UserDto> users = controller.getAllUsers();
         assertEquals(1, users.size(), "Должен вернуться 1 пользователь");
         assertTrue(users.contains(validUser), "Пользователь должен быть в списке");
     }
@@ -77,7 +87,7 @@ class UserTest {
     @SneakyThrows
     @Test
     void createUser_EmptyName_SetsNameAsLogin() {
-        User user = validUser.toBuilder().name("").build();
+        NewUserRequest user = validUser.toBuilder().name("").build();
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -89,7 +99,7 @@ class UserTest {
     @SneakyThrows
     @Test
     void createUser_InvalidEmail_ReturnsBadRequest() {
-        User user = validUser.toBuilder().email("not-an-email").build();
+        NewUserRequest user = validUser.toBuilder().email("not-an-email").build();
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,7 +110,7 @@ class UserTest {
     @SneakyThrows
     @Test
     void createUser_LoginWithSpaces_ReturnsBadRequest() {
-        User user = validUser.toBuilder().login("login with spaces").build();
+        NewUserRequest user = validUser.toBuilder().login("login with spaces").build();
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -111,7 +121,7 @@ class UserTest {
     @SneakyThrows
     @Test
     void createUser_FutureBirthday_ReturnsBadRequest() {
-        User user = validUser.toBuilder()
+        NewUserRequest user = validUser.toBuilder()
                 .birthday(LocalDate.now().plusDays(1))
                 .build();
 
@@ -143,7 +153,7 @@ class UserTest {
     @SneakyThrows
     @Test
     void updateUser_NonExistentId_ThrowsNotFoundException() {
-        User user = validUser.toBuilder().id(999).build();
+        NewUserRequest user = validUser.toBuilder().id(999L).build();
 
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -166,7 +176,7 @@ class UserTest {
     @SneakyThrows
     @Test
     void createUser_EmptyLogin_ReturnsBadRequest() {
-        User user = validUser.toBuilder().login("").build();
+        NewUserRequest user = validUser.toBuilder().login("").build();
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -177,7 +187,7 @@ class UserTest {
     @SneakyThrows
     @Test
     void createUser_BirthdayExactlyToday_ReturnsOk() {
-        User user = validUser.toBuilder()
+        NewUserRequest user = validUser.toBuilder()
                 .birthday(LocalDate.now())
                 .build();
 

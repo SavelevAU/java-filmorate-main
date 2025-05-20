@@ -8,14 +8,13 @@ import ru.yandex.practicum.filmorate.model.User;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private final List<User> users = new ArrayList<>();
-    private Integer idCounter = 1;
+    private final Map<Long, User> users = new HashMap<>();
+    private Long idCounter = 1l;
 
     @Override
     public User createUser(@RequestBody User user) {
@@ -25,7 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
             if (user.getName() == null || user.getName().isBlank()) {
                 user.setName(user.getLogin());
             }
-            users.add(user);
+            users.put(user.getId(), user);
             log.info("Пользователь успешно создан: {}", user.getLogin());
             return user;
         } catch (ValidationException e) {
@@ -51,7 +50,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User updateUser(@RequestBody User updatedUser) {
         try {
             validateUser(updatedUser);
-            for (User user : users) {
+            for (User user : users.values()) {
                 if (user.getId() == updatedUser.getId()) {
                     user.setEmail(updatedUser.getEmail());
                     user.setLogin(updatedUser.getLogin());
@@ -71,8 +70,76 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public Collection<User> getAllUsers() {
         log.info("Запрос на получение всех пользователей");
-        return users;
+        return users.values();
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return Optional.ofNullable(users.get(id));
+    }
+
+    @Override
+    public Collection<User> getFriendsByUser(Long id) {
+        User user = findById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
+        return user.getFriends().keySet()
+                .stream()
+                .map(this::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    @Override
+    public Collection<User> getCommonFriends(Long id, Long otherId) {
+        User user = findById(id).orElseThrow(() ->
+                new NotFoundException("Пользователь с id = " + id + " не найден"));
+        User otherUser = findById(otherId).orElseThrow(() ->
+                new NotFoundException("Пользователь с id = " + otherId + " не найден"));
+
+        return user.getFriends().keySet()
+                .stream()
+                .filter(otherUser.getFriends().keySet()::contains)
+                .map(this::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    @Override
+    public void addFriend(Long id, Long friendId) {
+        User user = findById(id).orElseThrow(() ->
+                new NotFoundException("Пользователь с id = " + id + " не найден"));
+        User friend = findById(friendId).orElseThrow(() ->
+                new NotFoundException("Пользователь с id = " + friendId + " не найден"));
+        // добавляем в друзья пользователя
+        Map<Long, Boolean> friends = user.getFriends();
+        friends.put(friend.getId(), true);
+        user.setFriends(friends);
+
+        // добавляем пользователя в друзья у соответствующего друга
+        Map<Long, Boolean> friendsOfFriend = friend.getFriends();
+        friendsOfFriend.put(user.getId(), true);
+        friend.setFriends(friendsOfFriend);
+    }
+
+    @Override
+    public void deleteFriend(Long id, Long friendId) {
+        User user = findById(id).orElseThrow(() ->
+                new NotFoundException("Пользователь с id = " + id + " не найден"));
+        User friend = findById(friendId).orElseThrow(() ->
+                new NotFoundException("Пользователь с id = " + friendId + " не найден"));
+
+        // удаляем у пользователя
+        Map<Long, Boolean> friends = user.getFriends();
+        friends.remove(friend.getId());
+        user.setFriends(friends);
+
+        // удаляем из друзей пользователя у соответствующего друга
+        Map<Long, Boolean> friendsOfFriend = friend.getFriends();
+        friendsOfFriend.remove(user.getId());
+        friend.setFriends(friendsOfFriend);
+
     }
 }
