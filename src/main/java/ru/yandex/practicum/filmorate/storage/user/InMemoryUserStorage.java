@@ -14,7 +14,7 @@ import java.util.*;
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
-    private Long idCounter = 1l;
+    private Long idCounter = 1L;
 
     @Override
     public User createUser(@RequestBody User user) {
