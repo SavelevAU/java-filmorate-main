@@ -13,6 +13,7 @@ public class RatingRowMapper implements RowMapper<Rating>  {
     public Rating mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Rating rating = new Rating();
         rating.setName(resultSet.getString("name"));
+        rating.setId(resultSet.getInt("id"));
         return rating;
     }
 }
