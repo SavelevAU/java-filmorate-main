@@ -1,20 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor
 public class User {
     @EqualsAndHashCode.Include
-    private Integer id;
+    private Long id;
     @Email
     @NotNull
     @NotBlank
@@ -26,11 +26,11 @@ public class User {
     private String name;
     @PastOrPresent
     private  LocalDate birthday;
-    private Set<Integer> friends;
+    private Map<Long, Boolean> friends;
 
-    public Set<Integer> getFriends() {
+    public Map<Long, Boolean> getFriends() {
         if (friends == null) {
-            return new HashSet<>();
+            return new HashMap<Long, Boolean>();
         }
         return friends;
     }
