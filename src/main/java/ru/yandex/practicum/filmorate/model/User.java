@@ -26,7 +26,7 @@ public class User {
     private String name;
     @PastOrPresent
     private  LocalDate birthday;
-    Map<Long, Boolean> friends;
+    private Map<Long, Boolean> friends;
 
     public Map<Long, Boolean> getFriends() {
         if (friends == null) {

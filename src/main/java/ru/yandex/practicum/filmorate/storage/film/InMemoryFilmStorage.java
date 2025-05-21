@@ -46,7 +46,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             }
             log.warn("Фильм с ID {} не найден", updatedFilm.getId());
             throw new NotFoundException("Фильм с id = " + updatedFilm.getId() + " не найден");
-            //       return null;
         } catch (ValidationException e) {
             log.error("Ошибка валидации при обновлении фильма: {}", e.getMessage());
             throw e;

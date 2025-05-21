@@ -62,7 +62,6 @@ public class InMemoryUserStorage implements UserStorage {
             }
             log.warn("Пользователь с ID {} не найден", updatedUser.getId());
             throw new NotFoundException("Пользователь с id = " + updatedUser.getId() + " не найден");
-            //return null;
         } catch (ValidationException e) {
             log.error("Ошибка валидации при обновлении пользователя: {}", e.getMessage());
             throw e;

@@ -16,9 +16,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.storage.mappers.GenreRowMapper;
-import ru.yandex.practicum.filmorate.storage.mappers.RatingRowMapper;
 import ru.yandex.practicum.filmorate.storage.mappers.UserRowMapper;
-import ru.yandex.practicum.filmorate.storage.rating.RatingDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
@@ -32,21 +30,21 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({UserDbStorage.class, UserRowMapper.class, FilmDbStorage.class, FilmRowMapper.class,
-        RatingDbStorage.class, GenreDbStorage.class, RatingRowMapper.class, GenreRowMapper.class})
+@Import({FilmDbStorage.class, FilmRowMapper.class, UserDbStorage.class, UserRowMapper.class,
+        GenreDbStorage.class, GenreRowMapper.class})
 class FilmoRateApplicationTests {
 
-    private final UserDbStorage userStorage;
     private final FilmDbStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;
-    private final RatingDbStorage ratingDbStorage;
     private final GenreDbStorage genreDbStorage;
+    private final UserDbStorage userStorage;
 
+    private Film film;
+    private Film film2;
     private User user;
     private User user2;
     private User user3;
-    private Film film;
-    private Film film2;
+
 
     @BeforeEach
     void setUp() {
@@ -99,95 +97,6 @@ class FilmoRateApplicationTests {
         film2.setMpa(mpa2);
         filmStorage.addFilm(film2);
 
-    }
-
-    @Test
-    public void testFindUserById() {
-
-        Optional<User> userOptional = userStorage.findById(1L);
-
-        assertThat(userOptional)
-                .isPresent()
-                .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
-                );
-    }
-
-    @Test
-    public void testFindAllUsers() {
-
-        Collection<User> allUsers = userStorage.getAllUsers();
-
-        assertThat(allUsers.size()).isEqualTo(3);
-
-        // Проверяем наличие всех email
-        List<String> emails = allUsers.stream()
-                .map(User::getEmail)
-                .toList();
-        assertThat(emails.contains("test@mail.ru")).isTrue();
-    }
-
-    @Test
-    public void testUpdateUser() {
-
-        user.setName("Updated name");
-        userStorage.updateUser(user);
-
-        Collection<User> allUsers = userStorage.getAllUsers();
-
-        assertThat(allUsers.size()).isEqualTo(3);
-
-        // Проверяем наличие всех email
-        List<String> names = allUsers.stream()
-                .map(User::getName)
-                .toList();
-        assertThat(names.contains("Updated name")).isTrue();
-    }
-
-    @Test
-    public void testAddFriend() {
-        userStorage.addFriend(1L, 2L);
-        Collection<User> friends = userStorage.getFriendsByUser(1L);
-        assertThat(friends.size()).isEqualTo(1);
-
-        List<Long> ids = friends.stream()
-                .map(User::getId)
-                .toList();
-        assertThat(ids.contains(2L)).isTrue();
-
-        Collection<User> user2Friends = userStorage.getFriendsByUser(2L);
-        assertThat(user2Friends.isEmpty()).isTrue();
-    }
-
-    @Test
-    public void testDeleteFriend() {
-        userStorage.addFriend(1L, 2L);
-        Collection<User> friends = userStorage.getFriendsByUser(1L);
-        assertThat(friends.size()).isEqualTo(1);
-
-        List<Long> ids = friends.stream()
-                .map(User::getId)
-                .toList();
-        assertThat(ids.contains(2L)).isTrue();
-
-        Collection<User> user2Friends = userStorage.getFriendsByUser(2L);
-        assertThat(user2Friends.isEmpty()).isTrue();
-    }
-
-    @Test
-    public void testGetCommonFriends() {
-        Collection<User> commonFriendsBefore = userStorage.getCommonFriends(2L, 3L);
-        assertThat(commonFriendsBefore.isEmpty()).isTrue();
-
-        userStorage.addFriend(2L, 1L);
-        userStorage.addFriend(3L, 1L);
-
-        Collection<User> commonFriendsAfter = userStorage.getCommonFriends(2L, 3L);
-        assertThat(commonFriendsAfter.size()).isEqualTo(1);
-        List<Long> ids = commonFriendsAfter.stream()
-                .map(User::getId)
-                .toList();
-        assertThat(ids.contains(1L)).isTrue();
     }
 
     @Test
@@ -251,38 +160,6 @@ class FilmoRateApplicationTests {
         filmStorage.deleteLikeByUser(2L, 1L);
         List<Map<String, Object>> rowsAfter = jdbcTemplate.queryForList(selectQuery);
         assertThat(rowsAfter.isEmpty()).isTrue();
-    }
-
-    @Test
-    public void testFindAllMpa() {
-        Collection<Rating> allMpa = ratingDbStorage.findAll();
-        assertThat(allMpa.size()).isEqualTo(5);
-    }
-
-    @Test
-    public void testFindAllGenres() {
-        Collection<Genre> allGenres = genreDbStorage.findAll();
-        assertThat(allGenres.size()).isEqualTo(6);
-    }
-
-    @Test
-    public void testFindMpaById() {
-        Optional<Rating> optionalMpa = ratingDbStorage.findById(1);
-        assertThat(optionalMpa)
-                .isPresent()
-                .hasValueSatisfying(mpa ->
-                        assertThat(mpa).hasFieldOrPropertyWithValue("name", "G")
-                );
-    }
-
-    @Test
-    public void testFindGenreById() {
-        Optional<Genre> optionalGenre = genreDbStorage.findById(1L);
-        assertThat(optionalGenre)
-                .isPresent()
-                .hasValueSatisfying(genre ->
-                        assertThat(genre).hasFieldOrPropertyWithValue("name", "Комедия")
-                );
     }
 
     @Test

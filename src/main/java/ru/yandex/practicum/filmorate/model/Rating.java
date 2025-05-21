@@ -9,8 +9,8 @@ import lombok.EqualsAndHashCode;
 @Data
 public class Rating {
     @EqualsAndHashCode.Include
-    Integer id;
+    private Integer id;
     @NotNull
     @NotBlank
-    String name;
+    private String name;
 }
